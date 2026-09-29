@@ -4,11 +4,13 @@ import { API_BASE_URL } from "../web3Config";
 
 export default function VerifyCertificate() {
   const [form, setForm] = useState({ certificate_id: "", student_name: "", course_name: "" });
+  const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleFile = (e) => setFile(e.target.files[0] || null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,13 +18,35 @@ export default function VerifyCertificate() {
     setError("");
     setResult(null);
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/verify`, form);
+      const data = new FormData();
+      data.append("certificate_id", form.certificate_id);
+      if (file) {
+        data.append("certificate_file", file);
+      } else {
+        data.append("student_name", form.student_name);
+        data.append("course_name", form.course_name);
+      }
+
+      const res = await axios.post(`${API_BASE_URL}/api/verify`, data);
       setResult(res.data);
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong");
     } finally {
       setLoading(false);
     }
+  };
+
+  const verdictLabel = () => {
+    if (result.revoked) return "CERTIFICATE REVOKED";
+    return result.is_valid ? "CERTIFICATE VALID" : "CERTIFICATE INVALID";
+  };
+  const verdictClass = () => {
+    if (result.revoked) return "verdict--invalid";
+    return result.is_valid ? "verdict--valid" : "verdict--invalid";
+  };
+  const verdictIcon = () => {
+    if (result.revoked) return "⊘";
+    return result.is_valid ? "✓" : "✕";
   };
 
   return (
@@ -44,25 +68,35 @@ export default function VerifyCertificate() {
               required
             />
           </div>
+
+          {!file && (
+            <>
+              <div className="field">
+                <label>Student Name</label>
+                <input
+                  name="student_name"
+                  placeholder="Full name"
+                  value={form.student_name}
+                  onChange={handleChange}
+                  required={!file}
+                />
+              </div>
+              <div className="field">
+                <label>Course / Program</label>
+                <input
+                  name="course_name"
+                  placeholder="e.g. CSE"
+                  value={form.course_name}
+                  onChange={handleChange}
+                  required={!file}
+                />
+              </div>
+            </>
+          )}
+
           <div className="field">
-            <label>Student Name</label>
-            <input
-              name="student_name"
-              placeholder="Full name"
-              value={form.student_name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="field">
-            <label>Course / Program</label>
-            <input
-              name="course_name"
-              placeholder="e.g. CSE"
-              value={form.course_name}
-              onChange={handleChange}
-              required
-            />
+            <label>Or attach the PDF to verify (skips the fields above)</label>
+            <input type="file" accept="application/pdf" className="file-input" onChange={handleFile} />
           </div>
 
           <button className="btn-action btn-action--verify" type="submit" disabled={loading}>
@@ -71,9 +105,9 @@ export default function VerifyCertificate() {
         </form>
 
         {result && (
-          <div className={`verdict ${result.is_valid ? "verdict--valid" : "verdict--invalid"}`}>
-            <span className="verdict-icon">{result.is_valid ? "✓" : "✕"}</span>
-            {result.is_valid ? "CERTIFICATE VALID" : "CERTIFICATE INVALID"}
+          <div className={`verdict ${verdictClass()}`}>
+            <span className="verdict-icon">{verdictIcon()}</span>
+            {verdictLabel()}
           </div>
         )}
 

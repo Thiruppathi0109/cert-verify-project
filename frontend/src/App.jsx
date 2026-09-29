@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserProvider } from "ethers";
 import IssueCertificate from "./components/IssueCertificate";
 import VerifyCertificate from "./components/VerifyCertificate";
+import RevokeCertificate from "./components/RevokeCertificate";
 
 export default function App() {
   const [address, setAddress] = useState("");
@@ -108,6 +109,10 @@ export default function App() {
       <div className="grid">
         <IssueCertificate />
         <VerifyCertificate />
+      </div>
+
+      <div className="grid grid--single">
+        <RevokeCertificate />
       </div>
 
       <div className="foot-note">

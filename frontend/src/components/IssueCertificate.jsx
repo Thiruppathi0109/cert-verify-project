@@ -4,11 +4,13 @@ import { API_BASE_URL } from "../web3Config";
 
 export default function IssueCertificate() {
   const [form, setForm] = useState({ certificate_id: "", student_name: "", course_name: "" });
+  const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleFile = (e) => setFile(e.target.files[0] || null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +18,13 @@ export default function IssueCertificate() {
     setError("");
     setResult(null);
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/issue`, form);
+      const data = new FormData();
+      data.append("certificate_id", form.certificate_id);
+      data.append("student_name", form.student_name);
+      data.append("course_name", form.course_name);
+      if (file) data.append("certificate_file", file);
+
+      const res = await axios.post(`${API_BASE_URL}/api/issue`, data);
       setResult(res.data);
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong");
@@ -65,6 +73,11 @@ export default function IssueCertificate() {
             />
           </div>
 
+          <div className="field">
+            <label>Certificate PDF (optional — binds hash to this exact file)</label>
+            <input type="file" accept="application/pdf" className="file-input" onChange={handleFile} />
+          </div>
+
           <button className="btn-action btn-action--issue" type="submit" disabled={loading}>
             {loading ? "SUBMITTING TO CHAIN..." : "ISSUE CERTIFICATE"}
           </button>
@@ -73,7 +86,7 @@ export default function IssueCertificate() {
         {result && (
           <div className="readout readout--ok">
             <div className="readout-line">
-              <b>Certificate issued</b>
+              <b>Certificate issued</b> — hash source: {result.hash_source === "file" ? "PDF file" : "form data"}
             </div>
             <div className="readout-line">TX HASH — {result.tx_hash}</div>
           </div>

@@ -11,6 +11,7 @@ class CertificateRecord(db.Model):
     course_name = db.Column(db.String(200), nullable=False)
     cert_hash = db.Column(db.String(256), nullable=False)
     tx_hash = db.Column(db.String(256), nullable=True)
+    revoked = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -20,5 +21,6 @@ class CertificateRecord(db.Model):
             "course_name": self.course_name,
             "cert_hash": self.cert_hash,
             "tx_hash": self.tx_hash,
+            "revoked": self.revoked,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }

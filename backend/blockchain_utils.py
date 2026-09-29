@@ -65,6 +65,7 @@ def issue_certificate_on_chain(certificate_id, student_name, course_name, cert_h
 
     return receipt.transactionHash.hex()
 
+
 def verify_certificate_on_chain(certificate_id, cert_hash):
     w3, contract = get_contract()
     is_valid, student_name, course_name, issue_date = contract.functions.verifyCertificate(
@@ -92,3 +93,27 @@ def get_certificate_on_chain(certificate_id):
         "cert_hash": cert_hash,
         "issue_date": issue_date,
     }
+
+
+def revoke_certificate_on_chain(certificate_id):
+    w3, contract = get_contract()
+
+    nonce = w3.eth.get_transaction_count(Config.ADMIN_ADDRESS)
+
+    estimated_gas = contract.functions.revokeCertificate(certificate_id).estimate_gas(
+        {"from": Config.ADMIN_ADDRESS}
+    )
+    gas_limit = int(estimated_gas * 1.2)
+
+    txn = contract.functions.revokeCertificate(certificate_id).build_transaction({
+        "chainId": w3.eth.chain_id,
+        "gas": gas_limit,
+        "gasPrice": w3.eth.gas_price,
+        "nonce": nonce,
+    })
+
+    signed_txn = w3.eth.account.sign_transaction(txn, private_key=Config.PRIVATE_KEY)
+    tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+
+    return receipt.transactionHash.hex()

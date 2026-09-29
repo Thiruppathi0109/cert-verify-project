@@ -215,6 +215,11 @@ button:focus-visible {
   }
 }
 
+.grid--single {
+  grid-template-columns: 1fr;
+  margin-top: 20px;
+}
+
 /* ---------- panel ---------- */
 
 .panel {
@@ -242,6 +247,10 @@ button:focus-visible {
   background: var(--gold);
 }
 
+.panel--revoke::before {
+  background: var(--sell);
+}
+
 .panel-head {
   display: flex;
   align-items: center;
@@ -263,6 +272,10 @@ button:focus-visible {
 
 .panel--verify .panel-title {
   color: var(--gold);
+}
+
+.panel--revoke .panel-title {
+  color: var(--sell);
 }
 
 .panel-tag {
@@ -359,6 +372,39 @@ button:focus-visible {
 
 .btn-action--verify:hover:not(:disabled) {
   filter: brightness(1.1);
+}
+
+.btn-action--revoke {
+  background: var(--sell);
+  color: #2a0410;
+}
+
+.btn-action--revoke:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.file-input {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-dim);
+  padding: 6px 0 8px;
+}
+
+.file-input::file-selector-button {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 2px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.file-input::file-selector-button:hover {
+  border-color: var(--buy);
 }
 
 /* ---------- result readouts ---------- */

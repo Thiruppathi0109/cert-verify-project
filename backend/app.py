@@ -4,6 +4,7 @@ from config import Config
 from models import db
 from routes.issue import issue_bp
 from routes.verify import verify_bp
+from routes.revoke import revoke_bp
 
 
 def create_app():
@@ -15,6 +16,7 @@ def create_app():
 
     app.register_blueprint(issue_bp)
     app.register_blueprint(verify_bp)
+    app.register_blueprint(revoke_bp)
 
     with app.app_context():
         db.create_all()
