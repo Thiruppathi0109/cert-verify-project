@@ -1,0 +1,12 @@
+.env
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+blockchain/artifacts/
+blockchain/cache/
+backend/instance/
+frontend/build/
+*.db
+.DS_Store
